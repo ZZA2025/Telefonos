@@ -130,6 +130,7 @@ if ($result === FALSE) {
                             <th>Actividades</th>
                             <th>Cuota</th>
                             <th>Forma de Pago</th>
+                            <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -144,6 +145,7 @@ if ($result === FALSE) {
                                     <td class="<?php echo $row['estado_cuenta'] == 'Efectivo' ? 'status-efectivo' : ($row['estado_cuenta'] == 'Mercado Pago' ? 'status-mercado-pago' : 'status-no-pago'); ?>">
                                         <?php echo htmlspecialchars($row['estado_cuenta']); ?>
                                     </td>
+                                    <td><?php echo ''; ?></td> <!-- Columna Estado vacía por el momento -->
                                     <td>
                                         <a href="modificar_socio.php?id=<?php echo $row['id']; ?>" class="btn btn-warning btn-sm">Modificar</a>
                                         <a href="eliminar_socio.php?id=<?php echo $row['id']; ?>" class="btn btn-danger btn-sm">Eliminar</a>
@@ -152,7 +154,7 @@ if ($result === FALSE) {
                             <?php endwhile; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="6" class="text-center">No hay socios registrados</td>
+                                <td colspan="7" class="text-center">No hay socios registrados</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
