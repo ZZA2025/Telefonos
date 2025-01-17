@@ -25,6 +25,7 @@ if ($conn->connect_error) {
 
 // Consulta SQL con LEFT JOIN para obtener socios, sus actividades y calcular la cuota
 $sql = "SELECT s.id, s.nombre, s.apellido, ts.tipo AS tipo_socio, ts.monto AS valor_tipo_socio, s.estado_cuenta,
+               s.fecha_inicio, s.fecha_ultimo_pago,
                GROUP_CONCAT(a.nombre SEPARATOR ', ') AS actividades,
                SUM(a.precio) + ts.monto AS cuota
         FROM socios s
@@ -36,6 +37,32 @@ $result = $conn->query($sql);
 
 if ($result === FALSE) {
     die("Error en la consulta SQL: " . $conn->error);
+}
+
+function obtener_estado_suscripcion($fecha_inicio, $fecha_ultimo_pago, $estado_cuenta) {
+    if ($estado_cuenta == 'Pago') {
+        return 'Activa';
+    }
+
+    if (is_null($fecha_inicio) || is_null($fecha_ultimo_pago)) {
+        return 'Deuda';
+    }
+
+    $fecha_actual = new DateTime();
+    $inicio_actividad = new DateTime($fecha_inicio);
+
+    if ($fecha_ultimo_pago) {
+        $ultimo_pago = new DateTime($fecha_ultimo_pago);
+        $mes_actual = (int)$fecha_actual->format('m');
+        $mes_ultimo_pago = (int)$ultimo_pago->format('m');
+        $dia_ultimo_pago = (int)$ultimo_pago->format('d');
+
+        if ($mes_actual == $mes_ultimo_pago && $dia_ultimo_pago <= 10) {
+            return 'Activa';
+        }
+    }
+
+    return 'Deuda';
 }
 ?>
 
@@ -89,9 +116,6 @@ if ($result === FALSE) {
         .status-efectivo {
             color: green;
         }
-        .status-mercado-pago {
-            color: skyblue;
-        }
         .status-no-pago {
             color: red;
         }
@@ -140,12 +164,12 @@ if ($result === FALSE) {
                                 <tr>
                                     <td><?php echo htmlspecialchars($row['nombre'] . ' ' . $row['apellido']); ?></td>
                                     <td><?php echo htmlspecialchars($row['tipo_socio']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['actividades']); ?></td>
-                                    <td><?php echo htmlspecialchars(number_format($row['cuota'], 2)); ?></td>
-                                    <td class="<?php echo $row['estado_cuenta'] == 'Efectivo' ? 'status-efectivo' : ($row['estado_cuenta'] == 'Mercado Pago' ? 'status-mercado-pago' : 'status-no-pago'); ?>">
+                                    <td><?php echo htmlspecialchars($row['actividades'] ?? 'N/A'); ?></td> <!-- Manejo de null -->
+                                    <td><?php echo number_format($row['cuota'] ?? 0, 2); ?></td> <!-- Manejo de null -->
+                                    <td class="<?php echo $row['estado_cuenta'] == 'Pago' ? 'status-efectivo' : 'status-no-pago'; ?>">
                                         <?php echo htmlspecialchars($row['estado_cuenta']); ?>
                                     </td>
-                                    <td><?php echo ''; ?></td> <!-- Columna Estado vacía por el momento -->
+                                    <td><?php echo obtener_estado_suscripcion($row['fecha_inicio'], $row['fecha_ultimo_pago'], $row['estado_cuenta']); ?></td>
                                     <td>
                                         <a href="modificar_socio.php?id=<?php echo $row['id']; ?>" class="btn btn-warning btn-sm">Modificar</a>
                                         <a href="eliminar_socio.php?id=<?php echo $row['id']; ?>" class="btn btn-danger btn-sm">Eliminar</a>

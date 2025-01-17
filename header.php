@@ -1,4 +1,3 @@
-<!-- header.php -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -12,9 +11,6 @@
             display: flex;
             min-height: 100vh;
             flex-direction: column;
-        }
-        .content {
-            flex: 1 0 auto;
         }
         .sidebar {
             height: 100%;
@@ -43,6 +39,15 @@
         .card {
             margin-bottom: 20px;
         }
+        @media (max-width: 767.98px) {
+            .main-content {
+                margin-left: 0;
+            }
+            .sidebar {
+                width: 100%;
+                position: relative;
+            }
+        }
     </style>
 </head>
 <body>
@@ -55,6 +60,7 @@
             <a href="#" class="pl-3">Alquiler de Quinchos</a>
             <a href="#" class="pl-3">Estacionamientos</a>
             <a href="#" class="pl-3">Colonia de Vacaciones</a>
+            <a href="pagos.php" class="pl-3">Pagos</a> <!-- Nuevo submenú -->
         </div>
         <a href="#visualizar" data-toggle="collapse">Visualizar</a>
         <div id="visualizar" class="collapse">

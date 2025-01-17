@@ -1,4 +1,3 @@
-<!-- footer.php -->
 </div>
     </div>
     <!-- jQuery and Bootstrap JS -->
