@@ -32,8 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $foto = $_FILES['foto']['name'];
     $edad = (int)$_POST['edad'];
     $tipo_socio_id = (int)$_POST['tipo_socio_id'];
-    $actividades = $_POST['actividades']; // Array de actividades seleccionadas
+    $actividades = isset($_POST['actividades']) ? $_POST['actividades'] : []; // Array de actividades seleccionadas
     $estado_cuenta = $conn->real_escape_string($_POST['estado_cuenta']);
+    $fecha_inicio = !empty($_POST['fecha_inicio']) ? $_POST['fecha_inicio'] : date('Y-m-d'); // Usar fecha actual si no se proporciona
 
     // Datos del adulto responsable
     $adulto_responsable_nombre = $conn->real_escape_string($_POST['adulto_responsable_nombre']);
@@ -45,13 +46,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Guardar la foto en el servidor
     $target_dir = "uploads/";
     $target_file = $target_dir . basename($_FILES["foto"]["name"]);
+    if (!is_dir($target_dir)) {
+        mkdir($target_dir, 0755, true);
+    }
     if (!move_uploaded_file($_FILES["foto"]["tmp_name"], $target_file)) {
         die("Error al subir la foto.");
     }
 
     // Insertar datos del socio
-    $sql = "INSERT INTO socios (apellido, nombre, dni, telefono, email, foto, edad, tipo_socio_id, estado_cuenta)
-            VALUES ('$apellido', '$nombre', '$dni', '$telefono', '$email', '$foto', '$edad', '$tipo_socio_id', '$estado_cuenta')";
+    $sql = "INSERT INTO socios (apellido, nombre, dni, telefono, email, foto, edad, tipo_socio_id, estado_cuenta, fecha_inicio)
+            VALUES ('$apellido', '$nombre', '$dni', '$telefono', '$email', '$foto', '$edad', '$tipo_socio_id', '$estado_cuenta', '$fecha_inicio')";
 
     if ($conn->query($sql) === TRUE) {
         $socio_id = $conn->insert_id; // Obtener el ID del socio insertado
@@ -75,6 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         header("Location: ver_socios.php");
+        exit();
     } else {
         die("Error al insertar socio: " . $conn->error);
     }
@@ -216,6 +221,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <option value="Mercado Pago">Mercado Pago</option>
                         <option value="No Pago">No Pago</option>
                     </select>
+                </div>
+                <div class="form-group">
+                    <label for="fecha_inicio">Fecha de Inicio</label>
+                    <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio">
                 </div>
                 <div class="form-group" id="adulto_responsable_section" style="display:none;">
                     <label for="adulto_responsable_nombre">Nombre del Adulto Responsable</label>
